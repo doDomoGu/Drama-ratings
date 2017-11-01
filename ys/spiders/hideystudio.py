@@ -72,8 +72,9 @@ class HideystudioSpider(scrapy.Spider):
 
         if has_table == False:
 
-            tr_all = response.css('.content_bg_repeat').xpath('tr')[1].xpath('.//table/tr')
-
+            #tr_all = response.css('.content_bg_repeat').xpath('tr')[1].xpath('.//table/tr')
+            tr_all = response.css('.content_bg_repeat').xpath('tr')[1].xpath('.//table')[0].xpath('./tr')
+            
             if len(tr_all) > 1:
 
                 for tr_one in tr_all:
