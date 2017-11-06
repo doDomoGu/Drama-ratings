@@ -23,12 +23,19 @@
     $dramas = $dbh->query('SELECT d.title,ts.name as tv,pt.name as time from `drama` d join tv_station ts on d.tv_id = ts.id join play_time pt on d.time_id = pt.id where page_id = '.$_GET['p_id']);
     ?>
     <div><?=$page['year'].' / '.$season[$page['season']]?></div>
+    <ul style="list-style:none;font-weight:bold;">
+        <li>
+            <span style="display:inline-block;width:400px;">剧名</span>
+            <span style="display:inline-block;width:60px;">电视台</span>
+            <span style="display:inline-block;width:60px;">时段</span>
+        </li>
+    </ul>
     <ul>
         <?php foreach($dramas as $d):?>
             <li>
-                <span style="display:inline-block;width:200px;"><?=$d['title']?></span>
-                <span style="display:inline-block;width:200px;"><?=$d['tv']?></span>
-                <span style="display:inline-block;width:200px;"><?=$d['time']?></span>
+                <span style="display:inline-block;width:400px;"><?=$d['title']?></span>
+                <span style="display:inline-block;width:60px;"><?=$d['tv']?></span>
+                <span style="display:inline-block;width:60px;"><?=$d['time']?></span>
             </li>
         <?php endforeach;?>
     </ul>

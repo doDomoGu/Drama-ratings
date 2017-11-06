@@ -29,7 +29,7 @@ class HideystudioSpider(scrapy.Spider):
     )
 
 
-    select_sql = "select * from `page` "# + " where year = '2009' and season = '1'" 
+    select_sql = "select * from `page` " + " where year = '2009' and season = '1'" 
 
     cursor = connection.cursor()
     cursor.execute(select_sql)
@@ -50,7 +50,7 @@ class HideystudioSpider(scrapy.Spider):
 
         for page in pages:
 
-            start_urls.append('http://localhost/python/tutorial/ys/rank/'+page['url'])
+            start_urls.append('http://localhost/python/drama_ratings/ys/rank/'+page['url'])
 
     else:
         allowed_domains = ['hideystudio.com']
@@ -73,9 +73,34 @@ class HideystudioSpider(scrapy.Spider):
         if has_table == False:
 
             #tr_all = response.css('.content_bg_repeat').xpath('tr')[1].xpath('.//table/tr')
-            tr_all = response.css('.content_bg_repeat').xpath('tr')[1].xpath('.//table')[0].xpath('./tr')
+            table_one = response.css('.content_bg_repeat').xpath('tr')[1].xpath('.//table')[0]
+            
+            tr_all = table_one.xpath('./tr')
             
             if len(tr_all) > 1:
+
+                #column_map = []
+
+                column_map = table_one.xpath(
+                    './tr[@class="rank-top"]').xpath('.//div[@class="rank-top"]/strong/text()').extract()
+
+                #print(column_map)
+               
+                tv_key = False
+                time_key = False
+                drama_key = False
+                if len(column_map) > 0:
+                    for ind, col_one in enumerate(column_map):
+                        if col_one == '电视台':
+                            tv_key = ind
+                        elif col_one == '时段':
+                            time_key = ind
+                        elif col_one == '剧名':
+                            drama_key = ind
+
+                
+                #return []
+
 
                 for tr_one in tr_all:
 
@@ -84,7 +109,7 @@ class HideystudioSpider(scrapy.Spider):
                     if ('rank-top' in tr_class) == True:
                         continue
 
-                    tv_name_temp = tr_one.xpath('./td')[0].xpath('./div/text()').extract()#.extract_first()
+                    tv_name_temp = tr_one.xpath('./td')[tv_key].xpath('./div/text()').extract()#.extract_first()
 
                     if len(tv_name_temp) == 1:
                         tv_name = tv_name_temp[0]
@@ -93,7 +118,7 @@ class HideystudioSpider(scrapy.Spider):
 
                     tv_item = TvItem(name=tv_name)
 
-                    time_name_temp = tr_one.xpath('./td')[1].xpath('./div/text()').extract()
+                    time_name_temp = tr_one.xpath('./td')[time_key].xpath('./div/text()').extract()
 
                     if len(time_name_temp) == 1:
                         time_name = time_name_temp[0]
@@ -102,7 +127,7 @@ class HideystudioSpider(scrapy.Spider):
 
                     time_item = TimeItem(name=time_name)
                     
-                    drama_name_temp = tr_one.xpath('./td')[2].xpath('./div/text()').extract()
+                    drama_name_temp = tr_one.xpath('./td')[drama_key].xpath('./div/text()').extract()
 
                     drama_name = ''
 
