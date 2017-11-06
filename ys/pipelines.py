@@ -43,9 +43,11 @@ class DramaPipeline(object):
                 print('drama_name :',drama_item['title'])
                 if drama_id:
                     print('drama_id :',drama_id)
+                    self.set_episode(
+                        drama_id, drama_item['epi_list'], drama_item['rating_avg'], drama_item['trend'],)
                     return drama_id
         return None
-
+    
     def get_tv_id(self, tv_name):
         '''
         #get_tv_id:根据剧名获取ID，没有则新建
@@ -133,3 +135,61 @@ class DramaPipeline(object):
             self.connection.commit()
 
             return insert_id
+    
+    def set_episode(self, drama_id, epi_list, rating_avg, trend):
+
+        #将所有集数的enable 置位 0  ，更新一条变更一条的enable=1    
+        update_sql = "update `episode` set  `enable` = 0 where drama_id = %s"
+
+        self.cursor.execute(update_sql, (drama_id))
+
+        self.connection.commit()
+
+        for epi_ind in epi_list:
+
+            sql = "select id from `episode` where `drama_id` = %s and num = %s "
+
+            self.cursor.execute(sql, (drama_id,epi_ind))
+
+            epi_one = self.cursor.fetchone()
+
+            if epi_one:
+                update_sql = "update `episode` set `rating` = %s , `ord` = 0 , `num` = %s , `enable` = 1 where id = %s"
+
+                self.cursor.execute(update_sql, (epi_list[epi_ind],epi_ind,epi_one['id']))
+
+                self.connection.commit()
+            else:
+                insert_sql = "insert into `episode` (`drama_id`,`ord`,`num`,`title`,`rating`,`enable`) values (%s,%s,%s,%s,%s,1)"
+
+                self.cursor.execute(insert_sql, (drama_id, 0, epi_ind, '', epi_list[epi_ind]))
+
+                self.connection.commit()
+
+        epi_num = len(epi_list)
+
+        update_sql = "update `drama` set `rating_avg` = %s, `trend` = %s, epi_num = %s where id = %s"
+
+        self.cursor.execute(update_sql, (rating_avg, trend, epi_num, drama_id))
+
+        self.connection.commit()
+
+
+        ''' if rating_avg:
+
+            update_sql = "update `drama` set `rating_avg` = %s where id = %s"
+
+            self.cursor.execute(update_sql, (rating_avg,drama_id))
+
+            self.connection.commit()
+
+        if trend:
+            
+
+            update_sql = "update `drama` set `trend` = %s where id = %s"
+
+            self.cursor.execute(update_sql, (trend, drama_id))
+
+            self.connection.commit() '''
+
+

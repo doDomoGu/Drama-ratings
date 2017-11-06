@@ -22,12 +22,16 @@ class DramaItem(scrapy.Item):
     tv_id = scrapy.Field()
     time_id = scrapy.Field()
     page_id = scrapy.Field()
+    epi_list = scrapy.Field()
+    rating_avg = scrapy.Field()
+    trend = scrapy.Field()
 
 
 class AllItem(scrapy.Item):
     tv = scrapy.Field()#TvItem()
     time = scrapy.Field()#TimeItem()
     drama = scrapy.Field()#DramaItem()
+    
 
 
 class PageItem(scrapy.Item):

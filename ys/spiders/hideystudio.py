@@ -29,7 +29,10 @@ class HideystudioSpider(scrapy.Spider):
     )
 
 
-    select_sql = "select * from `page` " + " where year = '2009' and season = '1'" 
+    select_sql = "select * from `page` " 
+    
+    #select_sql += " where year = '2009' and season = '1'" 
+    select_sql += " where year = '2009'" 
 
     cursor = connection.cursor()
     cursor.execute(select_sql)
@@ -89,6 +92,7 @@ class HideystudioSpider(scrapy.Spider):
                 tv_key = False
                 time_key = False
                 drama_key = False
+                episode_keys = {}
                 if len(column_map) > 0:
                     for ind, col_one in enumerate(column_map):
                         if col_one == '电视台':
@@ -97,8 +101,13 @@ class HideystudioSpider(scrapy.Spider):
                             time_key = ind
                         elif col_one == '剧名':
                             drama_key = ind
+                        elif col_one in ["1","2","3","4","5","6","7","8","9","10","11","12","13"]:
+                            episode_keys[ind] = col_one
+                        elif col_one == '平均':
+                            rating_avg_key = ind
+                        elif col_one == '走势':
+                            trend_key = ind
 
-                
                 #return []
 
 
@@ -109,6 +118,7 @@ class HideystudioSpider(scrapy.Spider):
                     if ('rank-top' in tr_class) == True:
                         continue
 
+                    #获取"电视台"字段
                     tv_name_temp = tr_one.xpath('./td')[tv_key].xpath('./div/text()').extract()#.extract_first()
 
                     if len(tv_name_temp) == 1:
@@ -118,6 +128,7 @@ class HideystudioSpider(scrapy.Spider):
 
                     tv_item = TvItem(name=tv_name)
 
+                    #获取"时段"字段
                     time_name_temp = tr_one.xpath('./td')[time_key].xpath('./div/text()').extract()
 
                     if len(time_name_temp) == 1:
@@ -127,6 +138,7 @@ class HideystudioSpider(scrapy.Spider):
 
                     time_item = TimeItem(name=time_name)
                     
+                    #获取"剧名"字段
                     drama_name_temp = tr_one.xpath('./td')[drama_key].xpath('./div/text()').extract()
 
                     drama_name = ''
@@ -138,11 +150,45 @@ class HideystudioSpider(scrapy.Spider):
                     else:
                         continue
 
-                    drama_item = DramaItem(title=drama_name,page_id=page_id)
+
+                    #获取"集数"
+                    epi_list = {}
+                    print(episode_keys)
+                    for epi_key in episode_keys:
+                        epi_rating_temp = tr_one.xpath('./td')[epi_key].xpath('./div/text()').extract()
+
+                        if len(epi_rating_temp) == 1:
+                            #epi_rating = 
+                            epi_list[episode_keys[epi_key]] = epi_rating_temp[0]
+                        
+                        
+                    #获取"平均收视率"
+                    rating_avg = ''
+                    rating_avg_temp = tr_one.xpath(
+                        './td')[rating_avg_key].xpath('./div/text()').extract()
+
+                    if len(rating_avg_temp) == 1:
+                        rating_avg = rating_avg_temp[0]
+
+                    #获取"走势"
+                    trend = ''
+                    trend_temp = tr_one.xpath(
+                        './td')[trend_key].xpath('./div/text()').extract()
+
+                    if len(trend_temp) == 1:
+                        trend = trend_temp[0]
+
+                    drama_item = DramaItem(
+                        title=drama_name, page_id=page_id, epi_list=epi_list, rating_avg=rating_avg,trend=trend)
                     all_item = AllItem()
                     all_item['tv'] = tv_item
                     all_item['time'] = time_item
                     all_item['drama'] = drama_item
+                    ''' print('222222222')
+                    print(epi_list)
+
+                    print('333333') '''
+                    #all_item['epi_list'] = epi_list
                     list_all.append(all_item)
 
         return list_all
