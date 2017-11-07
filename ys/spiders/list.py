@@ -7,10 +7,15 @@ import pymysql.cursors
 
 import re
 
+import configparser
+
 from ys.items import PageItem
 
 class listSpider(scrapy.Spider):
     
+    conf = configparser.ConfigParser()
+    conf.read('ys/conf.ini')
+
     ''' HideystudioSpider '''
     name = 'list'
 
@@ -21,10 +26,10 @@ class listSpider(scrapy.Spider):
     }
 
     connection = pymysql.connect(
-        host='localhost',
-        user='gljgljglj',
-        password='gljgogo',
-        db='ys',
+        host=conf.get('MYSQL', 'host'),
+        user=conf.get('MYSQL', 'user'),
+        password=conf.get('MYSQL', 'password'),
+        db=conf.get('MYSQL', 'db'),
         charset='utf8mb4',
         cursorclass=pymysql.cursors.DictCursor
     )
