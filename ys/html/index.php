@@ -5,7 +5,10 @@
 </head>
 <body>
 <?php
-    $dbh = new PDO('mysql:host=localhost;dbname=ys', 'gljgljglj', 'gljgogo');
+    $conf = parse_ini_file('../conf.ini',true);
+
+
+    $dbh = new PDO('mysql:host='.$conf['MYSQL']['host'].';dbname='.$conf['MYSQL']['db'], $conf['MYSQL']['user'], $conf['MYSQL']['password']);
     $season = [
         1=>'冬季',
         2=>'春季',
