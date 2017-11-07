@@ -4,20 +4,23 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
+import configparser
+
 import pymysql.cursors
 
 
-
 class DramaPipeline(object):
+    conf = configparser.ConfigParser()
+    conf.read('ys/conf.ini')
 
     connection = pymysql.connect(
-            host='localhost',
-            user='gljgljglj',
-            password='gljgogo',
-            db='ys',
-            charset='utf8mb4',
-            cursorclass=pymysql.cursors.DictCursor
-        )
+        host=conf.get('MYSQL', 'host'),
+        user=conf.get('MYSQL', 'user'),
+        password=conf.get('MYSQL', 'password'),
+        db=conf.get('MYSQL', 'db'),
+        charset='utf8mb4',
+        cursorclass=pymysql.cursors.DictCursor
+    )
 
     cursor = connection.cursor()
 
@@ -165,6 +168,12 @@ class DramaPipeline(object):
                 self.cursor.execute(insert_sql, (drama_id, 0, epi_ind, '', epi_list[epi_ind]))
 
                 self.connection.commit()
+
+        update_sql = "delete from `episode` where enable = 0"
+
+        self.cursor.execute(update_sql)
+
+        self.connection.commit()
 
         epi_num = len(epi_list)
 

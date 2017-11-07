@@ -9,7 +9,13 @@ import re
 
 from ys.items import DramaItem, TvItem, TimeItem, AllItem
 
+import configparser
+
 class HideystudioSpider(scrapy.Spider):
+
+    conf = configparser.ConfigParser()
+    conf.read('ys/conf.ini')
+
     custom_settings = {
         'ITEM_PIPELINES': {
             'ys.pipelines.DramaPipeline': 300,
@@ -20,31 +26,31 @@ class HideystudioSpider(scrapy.Spider):
     name = 'ys'
 
     connection = pymysql.connect(
-        host='localhost',
-        user='gljgljglj',
-        password='gljgogo',
-        db='ys',
+        host=conf.get('MYSQL','host'),
+        user=conf.get('MYSQL', 'user'),
+        password=conf.get('MYSQL','password'),
+        db=conf.get('MYSQL','db'),
         charset='utf8mb4',
         cursorclass=pymysql.cursors.DictCursor
     )
 
 
-    select_sql = "select * from `page` " 
+    select_sql = "select * from `page` where 1=1 " 
     
     #select_sql += " where year = '2009' and season = '1'" 
-    select_sql += " where year = '2009'" 
+    select_sql += " and  year in (2009) "
+
+    select_sql += " and  season in (1)"
+
 
     cursor = connection.cursor()
     cursor.execute(select_sql)
 
     pages = cursor.fetchall()
 
-
-
     allowed_domains = ['hideystudio.com']
     
-
-    localMode = True
+    localMode = conf.getboolean('SETTING', 'localmode')
 
     if localMode:
         allowed_domains = ['localhost']
@@ -153,7 +159,7 @@ class HideystudioSpider(scrapy.Spider):
 
                     #获取"集数"
                     epi_list = {}
-                    print(episode_keys)
+                    #print(episode_keys)
                     for epi_key in episode_keys:
                         epi_rating_temp = tr_one.xpath('./td')[epi_key].xpath('./div/text()').extract()
 
@@ -209,6 +215,7 @@ class HideystudioSpider(scrapy.Spider):
         return False            
 
     def parse(self, response):
+
         page_url = response.url.split("/")[-1]
 
         page_id = self.get_page_id(page_url)
