@@ -26,10 +26,10 @@ class HideystudioSpider(scrapy.Spider):
     name = 'ys'
 
     connection = pymysql.connect(
-        host=conf.get('MYSQL','host'),
+        host=conf.get('MYSQL', 'host'),
         user=conf.get('MYSQL', 'user'),
-        password=conf.get('MYSQL','password'),
-        db=conf.get('MYSQL','db'),
+        password=conf.get('MYSQL', 'password'),
+        db=conf.get('MYSQL', 'db'),
         charset='utf8mb4',
         cursorclass=pymysql.cursors.DictCursor
     )
