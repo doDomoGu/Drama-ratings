@@ -40,7 +40,7 @@ class listSpider(scrapy.Spider):
 
     connection.commit()
 
-    localMode = conf.get('SETTING', 'localmode')
+    localMode = conf.getboolean('SETTING', 'localmode')
 
     if localMode:
         allowed_domains = ['localhost']
