@@ -6,18 +6,21 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import pymysql.cursors
 
-
+import configparser
 
 class ListPipeline(object):
 
+    conf = configparser.ConfigParser()
+    conf.read('ys/conf.ini')
+
     connection = pymysql.connect(
-            host='localhost',
-            user='gljgljglj',
-            password='gljgogo',
-            db='ys',
-            charset='utf8mb4',
-            cursorclass=pymysql.cursors.DictCursor
-        )
+        host=conf.get('MYSQL', 'host'),
+        user=conf.get('MYSQL', 'user'),
+        password=conf.get('MYSQL', 'password'),
+        db=conf.get('MYSQL', 'db'),
+        charset='utf8mb4',
+        cursorclass=pymysql.cursors.DictCursor
+    )
 
     cursor = connection.cursor()
 

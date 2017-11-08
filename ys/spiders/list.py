@@ -26,11 +26,11 @@ class listSpider(scrapy.Spider):
     }
 
     connection = pymysql.connect(
-        host=conf.get('MYSQL', 'host'),
-        user=conf.get('MYSQL', 'user'),
-        password=conf.get('MYSQL', 'password'),
-        db=conf.get('MYSQL', 'db'),
-        charset='utf8mb4',
+        host = conf.get('MYSQL', 'host'),
+        user = conf.get('MYSQL', 'user'),
+        password = conf.get('MYSQL', 'password'),
+        db = conf.get('MYSQL', 'db'),
+        charset = 'utf8mb4',
         cursorclass=pymysql.cursors.DictCursor
     )
 
@@ -40,7 +40,7 @@ class listSpider(scrapy.Spider):
 
     connection.commit()
 
-    localMode = True
+    localMode = conf.get('SETTING', 'localmode')
 
     if localMode:
         allowed_domains = ['localhost']
